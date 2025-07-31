@@ -39,7 +39,6 @@ export default function FormPage() {
 
     setUploading(true) 
 
-    // Step 1: Upload image
     const fileForm = new FormData() 
     fileForm.append('file', formData.file) 
 
@@ -56,7 +55,6 @@ export default function FormPage() {
 
     const { url } = await uploadRes.json() 
 
-    // Step 2: Submit full form with CAPTCHA and file URL
     const res = await fetch('/api/storeData', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -76,7 +74,6 @@ export default function FormPage() {
     setCaptchaToken(null) 
     captchaRef.current?.resetCaptcha() 
     setUploading(false) 
-
 
   } 
 
