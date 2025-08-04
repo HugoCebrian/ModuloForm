@@ -78,24 +78,48 @@ export default function FormPage() {
   } 
 
   return (
-    <div className='bg-gray-800 m-8 p-8'>
-      <form onSubmit={handleSubmit} encType="multipart/form-data" className='grid gap-4'>
-        <input name="field1" className='bg-gray-200 rounded-lg text-gray-700 px-4 py-2' placeholder="Name" value={formData.field1} onChange={handleChange} required />
-        <input name="field2" className='bg-gray-200 rounded-lg text-gray-700 px-4 py-2' placeholder="Discord Handle" value={formData.field2} onChange={handleChange} required />
-        <input name="field3" className='bg-gray-200 rounded-lg text-gray-700 px-4 py-2' placeholder="Wallet" value={formData.field3} onChange={handleChange} required />
-        <input name="file" type="file" accept="image/*" onChange={handleChange} required />
+    <div className='bg-[#f0eeea] h-vh flex justify-center p-4 text-gray-900'>
+      <div className='w-[42rem]'>
+        <div className='rounded-lg bg-[url(/ambassador.png)] w-full h-44 bg-cover'></div>
 
+        <div className='rounded-lg bg-white overflow-hidden my-4'>
+          <div className='h-2 bg-purple-900'></div>
+          <div className='p-4 grid gap-4'>
+            <h1 className='text-3xl'>Week X Submission Form</h1>
+            <p className=''>description goes here</p>
+          </div>
 
-        <HCaptcha
-          sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
-          onVerify={setCaptchaToken}
-          ref={captchaRef}
-        />
+        </div>
 
-        <button type="submit" disabled={uploading}>
-          {uploading ? 'Uploading...' : 'Submit'}
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} encType="multipart/form-data" className='grid gap-4'>
+          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
+            <label className='flex gap-1'>What is your X/Twitter handle?<span className='text-red-500 text-xl'>*</span></label>
+            <input name="field1" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Your answer" value={formData.field1} onChange={handleChange} required />
+          </div>
+
+          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
+            <label className='flex gap-1'>1 short tweet about Modulo<span className='text-red-500 text-xl'>*</span></label>
+            <input name="field2" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Your answer" value={formData.field2} onChange={handleChange} required />
+          </div>
+
+          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
+            <label className='flex gap-1'>1 tweet thread about Modulo<span className='text-red-500 text-xl'>*</span></label>
+            <input name="field3" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Your answer" value={formData.field3} onChange={handleChange} required />
+          </div>
+
+          <input className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-purple-800 file:text-white hover:file:bg-purple-600 transition-all duration-300' name="file" type="file" accept="image/*" onChange={handleChange} required/>
+
+          <HCaptcha
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
+            onVerify={setCaptchaToken}
+            ref={captchaRef}
+          />
+
+          <button className='bg-purple-800 text-white p-2 px-6 rounded-lg place-self-start text-sm' type="submit" disabled={uploading}>
+            {uploading ? 'Uploading...' : 'Submit'}
+          </button>
+        </form>
+      </div>
     </div>
   ) 
 }
