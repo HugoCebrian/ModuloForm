@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end() 
 
   try {
-    const { field1, field2, field3, fileUrl, captcha } = req.body 
+    const { field1, field2, field3, field4, field5, field6, fileUrl, captcha } = req.body 
 
     const captchaRes = await fetch('https://hcaptcha.com/siteverify', {
       method: 'POST',
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         range: 'Sheet1!A:D',
         valueInputOption: 'RAW',
         requestBody: {
-          values: [[field1, field2, field3, fileUrl]]
+          values: [[field1, field2, field3, field4, field5, field6, fileUrl]]
         }
       }) 
 
