@@ -1,7 +1,7 @@
-'use client' 
+'use client'
 
-import { useState, useRef } from 'react' 
-import HCaptcha from '@hcaptcha/react-hcaptcha' 
+import { useState, useRef } from 'react'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 export default function FormPage() {
   const [formData, setFormData] = useState({
@@ -12,66 +12,66 @@ export default function FormPage() {
     field5: '',
     field6: '',
     file: null,
-  }) 
+  })
 
-  const [uploading, setUploading] = useState(false) 
-  const [captchaToken, setCaptchaToken] = useState(null) 
-  const captchaRef = useRef(null) 
+  const [uploading, setUploading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState(null)
+  const captchaRef = useRef(null)
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target 
+    const { name, value, files } = e.target
     if (name === 'file') {
-      setFormData((prev) => ({ ...prev, file: files?.[0] || null })) 
+      setFormData((prev) => ({ ...prev, file: files?.[0] || null }))
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value })) 
+      setFormData((prev) => ({ ...prev, [name]: value }))
     }
-  } 
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault() 
+    e.preventDefault()
 
     if (!captchaToken) {
-      alert('Please complete the CAPTCHA') 
-      return 
+      alert('Please complete the CAPTCHA')
+      return
     }
-    /*
-    if (!formData.file) {
-      alert('Please select a file') 
-      return 
-    }
-    */
-    setUploading(true) 
 
-    const sigRes = await fetch('/api', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ folder: 'my-app' }),
-    }) 
-    if (!sigRes.ok) {
-      setUploading(false) 
-      alert('Signature failed') 
-      return 
-    }
-    const sig = await sigRes.json() 
+    setUploading(true)
 
-    // 2) Upload directly to Cloudinary
-    const form = new FormData() 
-    form.append('file', formData.file) 
-    form.append('api_key', sig.api_key) 
-    form.append('timestamp', String(sig.timestamp)) 
-    form.append('signature', sig.signature) 
-    form.append('folder', sig.folder) 
-    if (sig.public_id) form.append('public_id', sig.public_id) 
+    let uploadedFileUrl = null
 
-    const cloudUrl = `https://api.cloudinary.com/v1_1/${sig.cloud_name}/auto/upload` 
-    const upRes = await fetch(cloudUrl, { method: 'POST', body: form }) 
-    if (!upRes.ok) {
-      setUploading(false) 
-      alert('File upload failed') 
-      return 
+    if (formData.file) {
+      const sigRes = await fetch('/api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folder: 'my-app' }),
+      })
+
+      if (!sigRes.ok) {
+        setUploading(false)
+        alert('Signature failed')
+        return
+      }
+      const sig = await sigRes.json()
+
+      const form = new FormData()
+      form.append('file', formData.file)
+      form.append('api_key', sig.api_key)
+      form.append('timestamp', String(sig.timestamp))
+      form.append('signature', sig.signature)
+      form.append('folder', sig.folder)
+      if (sig.public_id) form.append('public_id', sig.public_id)
+
+      const cloudUrl = `https://api.cloudinary.com/v1_1/${sig.cloud_name}/auto/upload`
+      const upRes = await fetch(cloudUrl, { method: 'POST', body: form })
+      if (!upRes.ok) {
+        setUploading(false)
+        alert('File upload failed')
+        return
+      }
+      const uploaded = await upRes.json()
+      uploadedFileUrl = uploaded.secure_url
     }
-    const uploaded = await upRes.json() 
-    const url = uploaded.secure_url 
+
 
     const res = await fetch('/api/storeData', {
       method: 'POST',
@@ -83,14 +83,15 @@ export default function FormPage() {
         field4: formData.field4,
         field5: formData.field5,
         field6: formData.field6,
-        fileUrl: url,
+        fileUrl: uploadedFileUrl, 
         captcha: captchaToken,
       }),
-    }) 
+    })
 
-    const result = await res.json() 
-    alert(result.message || 'Submitted!') 
+    const result = await res.json()
+    alert(result.message || 'Submitted!')
 
+    // Reset form
     setFormData({
       field1: '',
       field2: '',
@@ -99,11 +100,11 @@ export default function FormPage() {
       field5: '',
       field6: '',
       file: null,
-    }) 
-    setCaptchaToken(null) 
-    captchaRef.current?.resetCaptcha() 
-    setUploading(false) 
-  } 
+    })
+    setCaptchaToken(null)
+    captchaRef.current?.resetCaptcha()
+    setUploading(false)
+  }
 
   return (
     <div className='bg-[#f0eeea] min-h-screen flex justify-center p-4 text-gray-900'>
@@ -119,37 +120,49 @@ export default function FormPage() {
         </div>
 
         <form onSubmit={handleSubmit} encType="multipart/form-data" className='grid gap-4'>
-          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
-            <label className='flex gap-1'>What is your X/Twitter handle?<span className='text-red-500 text-xl'>*</span></label>
-            <input name="field1" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Your answer" value={formData.field1} onChange={handleChange} required />
-          </div>
+          {/* Fields */}
+          {['field1','field2','field3','field4','field5','field6'].map((name, idx) => (
+            <div key={name} className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
+              <label className='flex gap-1'>
+                {[
+                  'What is your X/Twitter handle?',
+                  '1 short tweet about Modulo',
+                  '1 tweet thread about Modulo',
+                  'Comment on 3 @ModuloLabs posts',
+                  'Retweet 3 @ModuloLabs posts',
+                  'Like 3 @ModuloLabs posts'
+                ][idx]}
+                <span className='text-red-500 text-xl'>*</span>
+              </label>
+              {idx >= 3 ? (
+                <textarea
+                  name={name}
+                  className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300'
+                  placeholder="Your answer"
+                  value={formData[name]}
+                  onChange={handleChange}
+                  required
+                />
+              ) : (
+                <input
+                  name={name}
+                  className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300'
+                  placeholder="Your answer"
+                  value={formData[name]}
+                  onChange={handleChange}
+                  required
+                />
+              )}
+            </div>
+          ))}
 
-          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
-            <label className='flex gap-1'>1 short tweet about Modulo<span className='text-red-500 text-xl'>*</span></label>
-            <input name="field2" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Your answer" value={formData.field2} onChange={handleChange} required />
-          </div>
-
-          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
-            <label className='flex gap-1'>1 tweet thread about Modulo<span className='text-red-500 text-xl'>*</span></label>
-            <input name="field3" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Your answer" value={formData.field3} onChange={handleChange} required />
-          </div>
-
-          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
-            <label className='flex gap-1'>Comment on 3 @ModuloLabs posts<span className='text-red-500 text-xl'>*</span></label>
-            <textarea name="field4" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to your comments" value={formData.field4} onChange={handleChange} required />
-          </div>
-
-          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
-            <label className='flex gap-1'>Retweet 3 @ModuloLabs posts<span className='text-red-500 text-xl'>*</span></label>
-            <textarea name="field5" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to the posts" value={formData.field5} onChange={handleChange} required />
-          </div>
-
-          <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
-            <label className='flex gap-1'>Like 3 @ModuloLabs posts<span className='text-red-500 text-xl'>*</span></label>
-            <textarea name="field6" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to the posts" value={formData.field6} onChange={handleChange} required />
-          </div>
-
-          <input className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#564be2] file:text-sm file:bg-[#564be2] hover:file:text-[#564be2] file:text-white hover:file:bg-[#c8c5f5] file:transition-all file:duration-300' name="file" type="file" accept="image/*" onChange={handleChange}/>
+          <input
+            className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#564be2] file:text-sm file:bg-[#564be2] hover:file:text-[#564be2] file:text-white hover:file:bg-[#c8c5f5] file:transition-all file:duration-300'
+            name="file"
+            type="file"
+            accept="image/*"
+            onChange={handleChange}
+          />
 
           <HCaptcha
             sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
@@ -157,11 +170,15 @@ export default function FormPage() {
             ref={captchaRef}
           />
 
-          <button className='border-[#564be2] border bg-[#564be2] hover:text-[#564be2] file:text-white hover:bg-[#c8c5f5] text-white p-2 px-6 rounded-md place-self-start text-sm transition-all duration-300' type="submit" disabled={uploading}>
+          <button
+            className='border-[#564be2] border bg-[#564be2] hover:text-[#564be2] file:text-white hover:bg-[#c8c5f5] text-white p-2 px-6 rounded-md place-self-start text-sm transition-all duration-300'
+            type="submit"
+            disabled={uploading}
+          >
             {uploading ? 'Uploading...' : 'Submit'}
           </button>
         </form>
       </div>
     </div>
-  ) 
+  )
 }
