@@ -115,17 +115,17 @@ export default function FormPage() {
 
           <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
             <label className='flex gap-1'>Comment on 3 @ModuloLabs posts<span className='text-red-500 text-xl'>*</span></label>
-            <input name="field4" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to your comments" value={formData.field4} onChange={handleChange} required />
+            <textarea name="field4" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to your comments" value={formData.field4} onChange={handleChange} required />
           </div>
 
           <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
             <label className='flex gap-1'>Retweet 3 @ModuloLabs posts<span className='text-red-500 text-xl'>*</span></label>
-            <input name="field5" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to the posts" value={formData.field5} onChange={handleChange} required />
+            <textarea name="field5" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to the posts" value={formData.field5} onChange={handleChange} required />
           </div>
 
           <div className='rounded-lg grid gap-4 px-6 py-4 bg-white'>
             <label className='flex gap-1'>Like 3 @ModuloLabs posts<span className='text-red-500 text-xl'>*</span></label>
-            <input name="field6" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to the posts" value={formData.field6} onChange={handleChange} required />
+            <textarea name="field6" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to the posts" value={formData.field6} onChange={handleChange} required />
           </div>
 
           <input className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#564be2] file:text-sm file:bg-[#564be2] hover:file:text-[#564be2] file:text-white hover:file:bg-[#c8c5f5] file:transition-all file:duration-300' name="file" type="file" accept="image/*" onChange={handleChange} required/>
