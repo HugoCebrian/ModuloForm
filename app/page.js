@@ -128,7 +128,7 @@ export default function FormPage() {
             <textarea name="field6" className='border-b border-gray-300 pb-2 w-1/2 focus:ring-0 outline-none focus:border-purple-900 transition-all duration-300' placeholder="Provide the links to the posts" value={formData.field6} onChange={handleChange} required />
           </div>
 
-          <input className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#564be2] file:text-sm file:bg-[#564be2] hover:file:text-[#564be2] file:text-white hover:file:bg-[#c8c5f5] file:transition-all file:duration-300' name="file" type="file" accept="image/*" onChange={handleChange} required/>
+          <input className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-[#564be2] file:text-sm file:bg-[#564be2] hover:file:text-[#564be2] file:text-white hover:file:bg-[#c8c5f5] file:transition-all file:duration-300' name="file" type="file" accept="image/*" onChange={handleChange}/>
 
           <HCaptcha
             sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
