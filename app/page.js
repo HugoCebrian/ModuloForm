@@ -34,11 +34,12 @@ export default function FormPage() {
       alert('Please complete the CAPTCHA') 
       return 
     }
+    /*
     if (!formData.file) {
       alert('Please select a file') 
       return 
     }
-
+    */
     setUploading(true) 
 
     const sigRes = await fetch('/api', {
