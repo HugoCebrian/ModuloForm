@@ -21,9 +21,9 @@ export default function FormPage() {
   const handleChange = (e) => {
     const { name, value, files } = e.target 
     if (name === 'file') {
-      setFormData(prev => ({ ...prev, file: files[0] })) 
+      setFormData((prev) => ({ ...prev, file: files?.[0] || null })) 
     } else {
-      setFormData(prev => ({ ...prev, [name]: value })) 
+      setFormData((prev) => ({ ...prev, [name]: value })) 
     }
   } 
 
@@ -34,7 +34,6 @@ export default function FormPage() {
       alert('Please complete the CAPTCHA') 
       return 
     }
-
     if (!formData.file) {
       alert('Please select a file') 
       return 
@@ -42,21 +41,36 @@ export default function FormPage() {
 
     setUploading(true) 
 
-    const fileForm = new FormData() 
-    fileForm.append('file', formData.file) 
-
-    const uploadRes = await fetch('/api/imgUpload', {
+    const sigRes = await fetch('/api', {
       method: 'POST',
-      body: fileForm,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folder: 'my-app' }),
     }) 
+    if (!sigRes.ok) {
+      setUploading(false) 
+      alert('Signature failed') 
+      return 
+    }
+    const sig = await sigRes.json() 
 
-    if (!uploadRes.ok) {
+    // 2) Upload directly to Cloudinary
+    const form = new FormData() 
+    form.append('file', formData.file) 
+    form.append('api_key', sig.api_key) 
+    form.append('timestamp', String(sig.timestamp)) 
+    form.append('signature', sig.signature) 
+    form.append('folder', sig.folder) 
+    if (sig.public_id) form.append('public_id', sig.public_id) 
+
+    const cloudUrl = `https://api.cloudinary.com/v1_1/${sig.cloud_name}/auto/upload` 
+    const upRes = await fetch(cloudUrl, { method: 'POST', body: form }) 
+    if (!upRes.ok) {
       setUploading(false) 
       alert('File upload failed') 
       return 
     }
-
-    const { url } = await uploadRes.json() 
+    const uploaded = await upRes.json() 
+    const url = uploaded.secure_url 
 
     const res = await fetch('/api/storeData', {
       method: 'POST',
@@ -74,13 +88,20 @@ export default function FormPage() {
     }) 
 
     const result = await res.json() 
-    alert(result.message) 
+    alert(result.message || 'Submitted!') 
 
-    setFormData({ field1: '', field2: '', field3: '', field4: '', field5: '', field6: '', file: null }) 
+    setFormData({
+      field1: '',
+      field2: '',
+      field3: '',
+      field4: '',
+      field5: '',
+      field6: '',
+      file: null,
+    }) 
     setCaptchaToken(null) 
     captchaRef.current?.resetCaptcha() 
     setUploading(false) 
-
   } 
 
   return (
@@ -92,9 +113,8 @@ export default function FormPage() {
           <div className='h-2 bg-[#564be2]'></div>
           <div className='p-4 grid gap-4'>
             <h1 className='text-3xl'>Week 10 Submission Form</h1>
-            <p className=''>Submit your tasks below</p>
+            <p>Submit your tasks below</p>
           </div>
-
         </div>
 
         <form onSubmit={handleSubmit} encType="multipart/form-data" className='grid gap-4'>
